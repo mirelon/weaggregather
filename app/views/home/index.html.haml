@@ -1,0 +1,26 @@
+%h1
+  %span{style: "color:blue"} We
+  %span{style: "color:red"} aggreg
+  %span{style: "color:blue"} ather
+%form{method: "POST"}
+  %input#searchbox{value: "Type in the city...", name: "searchbox"}
+  %br
+  %button Search
+
+
+- if @yrnosrc
+  %h3 yr.no
+  %img{src: @yrnosrc}
+  %hr
+- if @shmusrc
+  %h3 shmu.sk
+  %img{src: @shmusrc}
+  %hr
+- if @accutable
+  %h3 accuweather.com
+  = @accutable.html_safe
+  %hr
+- if @weathertable
+  %h3 weather.com
+  = @weathertable.html_safe
+  %hr
