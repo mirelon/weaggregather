@@ -1,5 +1,5 @@
 require 'capybara/dsl'
-require 'capybara-webkit'
+# require 'capybara-webkit'
 include Capybara::DSL
 
 class HomeController < ApplicationController
@@ -7,8 +7,8 @@ class HomeController < ApplicationController
 
   def index
     if params[:searchbox]
-      Capybara.current_driver = :webkit
-      Capybara.javascript_driver = :webkit
+      Capybara.current_driver = :selenium
+      Capybara.javascript_driver = :selenium
       yrno
       shmu
       accuweather

@@ -8,7 +8,8 @@ gem 'haml'
 
 gem 'sqlite3'
 gem 'capybara'
-gem 'capybara-webkit'
+# gem 'capybara-webkit'
+gem 'selenium-webdriver'
 gem 'heroku'
 
 
