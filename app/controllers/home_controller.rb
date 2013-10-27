@@ -1,5 +1,5 @@
 require 'capybara/dsl'
-# require 'capybara-webkit'
+require 'capybara/mechanize'
 include Capybara::DSL
 
 class HomeController < ApplicationController
@@ -7,57 +7,59 @@ class HomeController < ApplicationController
 
   def index
     if params[:searchbox]
-      Capybara.current_driver = :selenium
-      Capybara.javascript_driver = :selenium
-      yrno
-      shmu
-      accuweather
+      Capybara.current_driver = :mechanize
+      Capybara.javascript_driver = :mechanize
+      Capybara.default_driver = :mechanize
+      Capybara.app = "something not null"
+      @temps = {}
       weather
+      yrno
     end
   end
 
-  def shmu
-    Capybara.app_host = "http://www.shmu.sk/"
-    page.visit '/'
-    puts page.title
-    page.click_link_or_button 'Model ALADIN'
-    page.all('#nwp_mesto option').each do |e|
-      if e.text.downcase.include? params[:searchbox].downcase
-        page.find('#nwp_mesto').select e.text
-        @shmusrc = "http://www.shmu.sk/" + page.find('#maincontent .tcenter img')[:src]
-        break
+  def weather_site(name, url, searchfield, buttons, container, daywrapper, date_element, temp_element, celsius)
+    site = Site.where(name: name).first_or_create
+    site_url = site.url_for params[:searchbox]
+    if site_url
+      page.visit(site_url.url)
+      puts page.title
+    else
+      Capybara.app_host = url
+      page.visit('/')
+      puts page.title
+      page.find(searchfield).set(params[:searchbox])
+      buttons.each do |button|
+        page.first(button).click
+        puts page.title
+      end
+      SiteUrl.create url: current_url, search_string: params[:searchbox], site: site
+    end
+
+    if page.has_css?(container)
+      if daywrapper.is_a? Array
+        datewrapper_selector = "#{container} #{daywrapper[0]}".strip
+        tempwrapper_selector = "#{container} #{daywrapper[1]}".strip
+      else
+        datewrapper_selector = tempwrapper_selector = "#{container} #{daywrapper}".strip
+      end
+      (1..page.all(datewrapper_selector).size).to_a.each do |i|
+        if page.has_css?("#{datewrapper_selector}:nth(#{i}) #{date_element}".strip) and page.has_css?("#{tempwrapper_selector}:nth(#{i}) #{temp_element}".strip)
+          date = Date.parse page.find("#{datewrapper_selector}:nth(#{i}) #{date_element}".strip).text
+          temp = page.find("#{tempwrapper_selector}:nth(#{i}) #{temp_element}".strip).text.to_i
+          temp = temp.fahrenheit_to_celsius unless celsius
+          @temps[date] ||= {}
+          @temps[date][name] = temp
+        end
       end
     end
   end
 
   def yrno
-    site = Site.where(name: "yr.no").first
-    site_url = site.url_for params[:searchbox]
-    if site_url
-      @yrnosrc = site_url.url
-    else
-      Capybara.app_host = "http://www.yr.no/"
-      page.visit('/')
-      puts page.title
-      unless page.has_css?('.yr-language-switcher span.yr-icon-flag-eng')
-        page.find('.yr-language-switcher').click
-        if page.has_css?('[title=English]')
-          page.first('[title=English]').click
-          puts page.title
-        end
-      end
-      page.find('.yr-search-searchfield').set(params[:searchbox])
-      page.find('.yr-search-searchbutton').click
-      puts page.title
-      if page.has_css?('.yr-table-search-results tr a')
-        page.first('.yr-table-search-results tr a').click
-        puts page.title
-        @yrnosrc = current_url + "meteogram.png"
-      else
-        @yrnosrc = "http://cdn.techi.com/wp-content/themes/techi/images/failed_search2.jpg"
-      end
-      SiteUrl.create url: @yrnosrc, search_string: params[:searchbox], site: site
-    end
+    weather_site("yrno", "http://www.yr.no/", ".yr-search-searchfield", ['.yr-search-searchbutton', '.yr-table-search-results tr td:nth(2) a', '.yr-icon-longterm'], '.yr-table-longterm', ['th', 'tr:nth(2) td'], 'span', '', true)
+  end
+
+  def weather
+    weather_site("weather", "http://www.weather.com/", "#typeaheadBox", ['.wx-searchButton','.wx-vnav:contains("10 Day")'], '#wx-forecast-container', '.wx-daypart', 'h3 .wx-label', '.wx-conditions .wx-temp', false)
   end
 
   def accuweather
@@ -69,33 +71,13 @@ class HomeController < ApplicationController
       Capybara.app_host = "http://www.accuweather.com/"
       page.visit('/')
       puts page.title
-      page.find('.loc_search_box').set(params[:searchbox])
-      page.find('.bt-go').click
+      page.find('#findcity #s').set(params[:searchbox])
+      page.find('#findcity .bt-go').click
+      puts page.title
       page.click_link_or_button 'Extended'
       page.evaluate_script("acm_updateUnits('1');")
       @accutable = page.evaluate_script("document.getElementById('feed-tabs').innerHTML")
       SiteUrl.create url: @accutable, search_string: params[:searchbox], site: site
     end
-  end
-
-  def weather
-    site = Site.where(name: "weather.com").first
-    site_url = site.url_for params[:searchbox]
-    if site_url
-      page.visit(site_url.url)
-      puts page.title
-    else
-      Capybara.app_host = "http://www.weather.com/"
-      page.visit('/')
-      puts page.title
-      page.find('#typeaheadBox').set(params[:searchbox])
-      page.first('.wx-searchButton').click
-      page.click_link_or_button '10 Day'
-      SiteUrl.create url: current_url, search_string: params[:searchbox], site: site
-    end
-    if page.has_css?('#wx-temperature-celcius-button')
-      page.find('#wx-temperature-celcius-button').click
-    end
-    @weathertable = page.evaluate_script("document.getElementById('wx-forecast-container').innerHTML")
   end
 end

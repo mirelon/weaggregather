@@ -7,20 +7,27 @@
   %br
   %button Search
 
+- if @temps
+  = @temps.inspect
+
+- if @shmutext
+  %h2 shmu.sk
+  = @shmutext.html_safe
+  %hr
 
 - if @yrnosrc
-  %h3 yr.no
+  %h2 yr.no
   %img{src: @yrnosrc}
   %hr
 - if @shmusrc
-  %h3 shmu.sk
+  %h2 shmu.sk
   %img{src: @shmusrc}
   %hr
 - if @accutable
-  %h3 accuweather.com
+  %h2 accuweather.com
   = @accutable.html_safe
   %hr
 - if @weathertable
-  %h3 weather.com
+  %h2 weather.com
   = @weathertable.html_safe
   %hr

@@ -15,8 +15,7 @@ group :production do
 end
 
 gem 'capybara'
-# gem 'capybara-webkit'
-gem 'selenium-webdriver'
+gem 'capybara-mechanize'
 gem 'heroku'
 
 

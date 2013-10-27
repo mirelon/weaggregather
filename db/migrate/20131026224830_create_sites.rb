@@ -5,7 +5,7 @@ class CreateSites < ActiveRecord::Migration
 
       t.timestamps
     end
-    Site.create name: "yr.no"
+    Site.create name: "yr.no meteogram"
     Site.create name: "shmu.sk"
     Site.create name: "accuweather.com"
     Site.create name: "weather.com"

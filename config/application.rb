@@ -33,6 +33,9 @@ module Weaggregather
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
+    # Include the core extension classes according to http://stackoverflow.com/questions/5654517/in-ruby-on-rails-to-extend-the-string-class-where-should-the-code-be-put-in
+    Dir[File.join(Rails.root, "lib", "core_ext", "*.rb")].each {|l| require l }
+
     # Configure the default encoding used in templates for Ruby 1.9.
     config.encoding = "utf-8"
 
