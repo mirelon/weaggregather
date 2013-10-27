@@ -29,8 +29,10 @@ class HomeController < ApplicationController
       puts page.title
       page.find(searchfield).set(params[:searchbox])
       buttons.each do |button|
-        page.first(button).click
-        puts page.title
+        if page.has_css? button
+          page.first(button).click
+          puts page.title
+        end
       end
       SiteUrl.create url: current_url, search_string: params[:searchbox], site: site
     end
@@ -55,11 +57,11 @@ class HomeController < ApplicationController
   end
 
   def yrno
-    weather_site("yrno", "http://www.yr.no/", ".yr-search-searchfield", ['.yr-search-searchbutton', '.yr-table-search-results tr td:nth(2) a', '.yr-icon-longterm'], '.yr-table-longterm', ['th', 'tr:nth(2) td'], 'span', '', true)
+    weather_site("yr.no", "http://www.yr.no/", ".yr-search-searchfield", ['.yr-search-searchbutton', '.yr-table-search-results tr td:nth(2) a', '.yr-icon-longterm'], '.yr-table-longterm', ['th', 'tr:nth(2) td'], 'span', '', true)
   end
 
   def weather
-    weather_site("weather", "http://www.weather.com/", "#typeaheadBox", ['.wx-searchButton','.wx-vnav:contains("10 Day")'], '#wx-forecast-container', '.wx-daypart', 'h3 .wx-label', '.wx-conditions .wx-temp', false)
+    weather_site("weather.com", "http://www.weather.com/", "#typeaheadBox", ['.wx-searchButton','.searchResultsList a','.wx-vnav:contains("10 Day")'], '#wx-forecast-container', '.wx-daypart', 'h3 .wx-label', '.wx-conditions .wx-temp', false)
   end
 
   def accuweather

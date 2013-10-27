@@ -6,4 +6,15 @@
     = javascript_include_tag "application"
     = csrf_meta_tags
 %body
+  %h1
+    %span{style: "color:blue"} We
+    %span{style: "color:red"} aggreg
+    %span{style: "color:blue"} ather
+  Search through major weather sites and averaging the results. Currently working with yr.no and weather.com.
+  %br
+  Won't work with:
+  %ul
+    %li shmu.sk - searching by location doesn't work
+    %li accuweather.com - doesn't work without javascript
+
   = yield

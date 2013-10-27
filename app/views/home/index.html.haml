@@ -1,33 +1,13 @@
-%h1
-  %span{style: "color:blue"} We
-  %span{style: "color:red"} aggreg
-  %span{style: "color:blue"} ather
 %form{method: "POST"}
   %input#searchbox{value: "Type in the city...", name: "searchbox"}
   %br
   %button Search
 
 - if @temps
-  = @temps.inspect
-
-- if @shmutext
-  %h2 shmu.sk
-  = @shmutext.html_safe
-  %hr
-
-- if @yrnosrc
-  %h2 yr.no
-  %img{src: @yrnosrc}
-  %hr
-- if @shmusrc
-  %h2 shmu.sk
-  %img{src: @shmusrc}
-  %hr
-- if @accutable
-  %h2 accuweather.com
-  = @accutable.html_safe
-  %hr
-- if @weathertable
-  %h2 weather.com
-  = @weathertable.html_safe
-  %hr
+  %table{cellspacing: 0, cellpadding: 0}
+    %th date
+    %th temp
+    - @temps.each do |date, data|
+      %tr
+        %td= date.strftime "%d.%m."
+        %td{title: data.map {|site, temp| "#{site}: #{temp}"}.join(", ")}= data.values.sum.to_f / data.size
