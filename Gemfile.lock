@@ -76,6 +76,7 @@ GEM
     multi_json (1.8.2)
     netrc (0.7.7)
     nokogiri (1.5.9)
+    pg (0.17.0)
     polyglot (0.3.3)
     rack (1.4.5)
     rack-cache (1.2)
@@ -143,6 +144,7 @@ DEPENDENCIES
   haml
   heroku
   jquery-rails
+  pg
   rails (= 3.2.13)
   sass-rails (~> 3.2.3)
   selenium-webdriver
