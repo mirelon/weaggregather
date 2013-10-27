@@ -30,7 +30,12 @@ class HomeController < ApplicationController
       page.find(searchfield).set(params[:searchbox])
       buttons.each do |button|
         if page.has_css? button
-          page.first(button).click
+          elem = page.first(button)
+          if elem[:href].nil? or elem[:href] == URI.encode(elem[:href])
+            elem.click
+          else
+            page.visit URI.encode(elem[:href])
+          end
           puts page.title
         end
       end
@@ -46,7 +51,12 @@ class HomeController < ApplicationController
       end
       (1..page.all(datewrapper_selector).size).to_a.each do |i|
         if page.has_css?("#{datewrapper_selector}:nth(#{i}) #{date_element}".strip) and page.has_css?("#{tempwrapper_selector}:nth(#{i}) #{temp_element}".strip)
-          date = Date.parse page.find("#{datewrapper_selector}:nth(#{i}) #{date_element}".strip).text
+          date_string = page.find("#{datewrapper_selector}:nth(#{i}) #{date_element}".strip).text
+          begin
+            date = Date.parse date_string 
+          rescue ArgumentError
+            date = Date.parse date_string.norway_to_english_month
+          end
           temp = page.find("#{tempwrapper_selector}:nth(#{i}) #{temp_element}".strip).text.to_i
           temp = temp.fahrenheit_to_celsius unless celsius
           @temps[date] ||= {}
